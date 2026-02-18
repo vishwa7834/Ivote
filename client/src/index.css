@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #8B5CF6;
+  --color-secondary: #EC4899;
+  --color-accent: #06B6D4;
+  --color-dark: #0F172A;
+}
+
+@layer base {
+
+  html,
+  body {
+    @apply h-full;
+  }
+
+  body {
+    @apply bg-gray-50 text-gray-900 font-sans;
+  }
+}
