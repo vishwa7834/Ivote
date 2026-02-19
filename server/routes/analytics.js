@@ -3,7 +3,6 @@ const router = express.Router();
 const User = require('../models/User');
 const Grievance = require('../models/Grievance');
 const jwt = require('jsonwebtoken');
-
 // Middleware to check if user is admin
 const authenticateAdmin = (req, res, next) => {
     const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -20,7 +19,6 @@ const authenticateAdmin = (req, res, next) => {
         res.status(401).json({ message: 'Invalid token' });
     }
 };
-
 // GET /api/analytics/dashboard
 router.get('/dashboard', authenticateAdmin, async (req, res) => {
     try {
