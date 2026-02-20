@@ -25,24 +25,42 @@ app.use((req, res, next) => {
 });
 
 // Database Connection
-if (!process.env.MONGO_URI) {
-    console.error('FATAL: MONGO_URI is not defined in environment variables');
-}
+let lastConnectionError = null;
 
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('MongoDB connected'))
-    .catch(err => console.error('MongoDB connection error:', err));
+const connectDB = async () => {
+    try {
+        if (mongoose.connection.readyState === 1) return;
+        await mongoose.connect(process.env.MONGO_URI);
+        console.log('MongoDB connected');
+        lastConnectionError = null;
+    } catch (err) {
+        console.error('MongoDB connection error:', err);
+        lastConnectionError = err.message;
+    }
+};
+
+// Initial connection attempt
+connectDB();
 
 // Routes
-app.get('/api/health', (req, res) => {
+app.get('/api/health', async (req, res) => {
+    // Attempt reconnection if disconnected
+    if (mongoose.connection.readyState !== 1) {
+        await connectDB();
+    }
+
     const dbStatus = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';
+
     res.json({
         status: 'ok',
         database: dbStatus,
+        lastError: lastConnectionError, // Show the actual error message
         env: {
             mongo: !!process.env.MONGO_URI,
+            mongo_length: process.env.MONGO_URI ? process.env.MONGO_URI.length : 0, // Debug string length
             jwt: !!process.env.JWT_SECRET
-        }
+        },
+        ip: req.ip // Show IP to see if proxy headers work
     });
 });
 
