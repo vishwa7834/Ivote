@@ -12,17 +12,40 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: '*', // Allow all origins for now to rule out CORS issues
+    credentials: true
+}));
 app.use(express.json());
 
+// Request Logger
+app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+    next();
+});
+
 // Database Connection
-// Database Connection
+if (!process.env.MONGO_URI) {
+    console.error('FATAL: MONGO_URI is not defined in environment variables');
+}
+
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log('MongoDB connected'))
     .catch(err => console.error('MongoDB connection error:', err));
-// console.log('MongoDB connection skipped for Mock Admin mode');
 
 // Routes
+app.get('/api/health', (req, res) => {
+    const dbStatus = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';
+    res.json({
+        status: 'ok',
+        database: dbStatus,
+        env: {
+            mongo: !!process.env.MONGO_URI,
+            jwt: !!process.env.JWT_SECRET
+        }
+    });
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/candidates', candidateRoutes);
 app.use('/api/vote', voteRoutes);
