@@ -30,7 +30,10 @@ let lastConnectionError = null;
 const connectDB = async () => {
     try {
         if (mongoose.connection.readyState === 1) return;
-        await mongoose.connect(process.env.MONGO_URI);
+        // Add 5s timeout to fail fast if firewall is blocking
+        await mongoose.connect(process.env.MONGO_URI, {
+            serverSelectionTimeoutMS: 5000
+        });
         console.log('MongoDB connected');
         lastConnectionError = null;
     } catch (err) {
@@ -49,15 +52,23 @@ app.get('/api/health', async (req, res) => {
         await connectDB();
     }
 
-    const dbStatus = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';
+    const states = {
+        0: 'Disconnected',
+        1: 'Connected',
+        2: 'Connecting',
+        3: 'Disconnecting',
+        99: 'Uninitialized',
+    };
+    const readyState = mongoose.connection.readyState;
 
     res.json({
         status: 'ok',
-        database: dbStatus,
-        lastError: lastConnectionError, // Show the actual error message
+        database: states[readyState] || 'Unknown',
+        readyState: readyState,
+        lastError: lastConnectionError,
         env: {
             mongo: !!process.env.MONGO_URI,
-            mongo_length: process.env.MONGO_URI ? process.env.MONGO_URI.length : 0, // Debug string length
+            mongo_length: process.env.MONGO_URI ? process.env.MONGO_URI.length : 0,
             jwt: !!process.env.JWT_SECRET
         },
         ip: req.ip // Show IP to see if proxy headers work
