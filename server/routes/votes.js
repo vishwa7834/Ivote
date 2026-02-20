@@ -17,14 +17,35 @@ const authenticate = (req, res, next) => {
     }
 };
 
+// Helper to calculate Euclidean distance between two descriptors
+const getEuclideanDistance = (desc1, desc2) => {
+    if (desc1.length !== desc2.length) return Infinity;
+    return Math.sqrt(desc1.reduce((sum, val, i) => sum + Math.pow(val - desc2[i], 2), 0));
+};
+
 // Vote
 router.post('/', authenticate, async (req, res) => {
     try {
-        const { candidateId } = req.body;
+        const { candidateId, liveFaceDescriptor } = req.body;
         const userId = req.user.id;
 
         const user = await User.findById(userId);
         if (user.hasVoted) return res.status(400).json({ message: 'You have already voted' });
+
+        if (!user.faceDescriptor || user.faceDescriptor.length === 0) {
+            return res.status(400).json({ message: 'No face registered for this user. Please contact admin.' });
+        }
+
+        if (!liveFaceDescriptor) {
+            return res.status(400).json({ message: 'Face verification is required to vote.' });
+        }
+
+        const distance = getEuclideanDistance(user.faceDescriptor, liveFaceDescriptor);
+
+        // face-api.js default threshold is 0.6. We use 0.55 for slightly stricter security.
+        if (distance > 0.55) {
+            return res.status(401).json({ message: 'Face verification failed. Make sure you are the registered voter and in good lighting.' });
+        }
 
         await Candidate.findByIdAndUpdate(candidateId, { $inc: { votes: 1 } });
         await User.findByIdAndUpdate(userId, { hasVoted: true });

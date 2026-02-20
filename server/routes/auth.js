@@ -8,7 +8,7 @@ const nodemailer = require('nodemailer');
 // Register
 router.post('/register', async (req, res) => {
     try {
-        const { name, phone, email, rollNumber, password, role } = req.body;
+        const { name, phone, email, rollNumber, password, role, faceDescriptor } = req.body;
 
         // Check if user exists
         let user = await User.findOne({ rollNumber });
@@ -27,7 +27,8 @@ router.post('/register', async (req, res) => {
             email,
             rollNumber,
             password: hashedPassword,
-            role
+            role,
+            faceDescriptor
         });
 
         await user.save();
@@ -42,8 +43,24 @@ router.post('/login', async (req, res) => {
     try {
         const { rollNumber, password } = req.body;
 
-        // Check for Admin Bypass (specific roll number for admin) or handle normally
-        // For now, standard login flow
+        // Check for Admin Bypass
+        if (rollNumber === 'vishwa7834@gmail.com' && password === '9486677834') {
+            const token = jwt.sign(
+                { id: 'static-admin-id', role: 'admin' },
+                process.env.JWT_SECRET || 'secret',
+                { expiresIn: '24h' }
+            );
+            return res.json({
+                token,
+                user: {
+                    id: 'static-admin-id',
+                    name: 'Admin',
+                    role: 'admin',
+                    rollNumber: 'vishwa7834@gmail.com',
+                    hasVoted: true // Admins don't vote
+                }
+            });
+        }
 
         const user = await User.findOne({ rollNumber });
         if (!user) return res.status(400).json({ message: 'Invalid Credentials' });

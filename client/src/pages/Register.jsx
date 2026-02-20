@@ -4,6 +4,7 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import { User, Mail, Lock, Phone, CreditCard, ArrowRight, Loader } from 'lucide-react';
 import { API_URL } from '../config';
+import FaceCapture from '../components/FaceCapture';
 
 const Register = () => {
     const navigate = useNavigate();
@@ -14,8 +15,13 @@ const Register = () => {
         phone: '',
         rollNumber: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        faceDescriptor: null
     });
+
+    const handleFaceCapture = (descriptor) => {
+        setFormData({ ...formData, faceDescriptor: descriptor });
+    };
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -29,6 +35,10 @@ const Register = () => {
             alert("Passwords do not match!");
             return;
         }
+        if (!formData.faceDescriptor) {
+            alert("Please capture your face for secure verification before registering.");
+            return;
+        }
 
         setIsLoading(true);
         try {
@@ -37,7 +47,8 @@ const Register = () => {
                 email: formData.email,
                 phone: formData.phone,
                 rollNumber: formData.rollNumber,
-                password: formData.password
+                password: formData.password,
+                faceDescriptor: formData.faceDescriptor
                 // role defaults to student in backend
             });
 
@@ -161,6 +172,12 @@ const Register = () => {
                                     required
                                 />
                             </div>
+                        </div>
+
+                        {/* Face Capture Section */}
+                        <div className="pt-2">
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Secure Face Verification</label>
+                            <FaceCapture onCapture={handleFaceCapture} buttonLabel="Confirm and Save Face" />
                         </div>
 
                         <button

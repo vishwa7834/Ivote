@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Vote as VoteIcon, User, CheckCircle2, AlertCircle, Award } from 'lucide-react';
+import { Vote as VoteIcon, User, CheckCircle2, AlertCircle, Award, X } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { API_URL } from '../config';
+import FaceCapture from '../components/FaceCapture';
 
 const Vote = () => {
     const [candidates, setCandidates] = useState([]);
@@ -12,6 +13,7 @@ const Vote = () => {
     const [loading, setLoading] = useState(true);
     const [voting, setVoting] = useState(false);
     const [hasVoted, setHasVoted] = useState(false);
+    const [showFaceVerification, setShowFaceVerification] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -36,16 +38,22 @@ const Vote = () => {
         checkStatus();
     }, []);
 
-    const handleVote = async () => {
+    const handleVoteInitiation = () => {
         if (!selectedCandidate) return;
-
         const confirmVote = window.confirm(`Confirm your vote for ${selectedCandidate.name}?`);
-        if (!confirmVote) return;
+        if (confirmVote) {
+            setShowFaceVerification(true);
+        }
+    };
 
+    const handleVote = async (liveFaceDescriptor) => {
         setVoting(true);
         const token = localStorage.getItem('token');
         try {
-            await axios.post(`${API_URL}/api/vote`, { candidateId: selectedCandidate._id }, {
+            await axios.post(`${API_URL}/api/vote`, {
+                candidateId: selectedCandidate._id,
+                liveFaceDescriptor
+            }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -67,6 +75,8 @@ const Vote = () => {
 
         } catch (err) {
             alert('Voting failed: ' + (err.response?.data?.message || err.message));
+            setShowFaceVerification(false);
+        } finally {
             setVoting(false);
         }
     };
@@ -202,7 +212,7 @@ const Vote = () => {
                             </div>
 
                             <button
-                                onClick={handleVote}
+                                onClick={handleVoteInitiation}
                                 disabled={voting}
                                 className="w-full md:w-auto bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-8 py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-violet-500/30 hover:-translate-y-1 active:translate-y-0 transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed"
                             >
@@ -219,6 +229,52 @@ const Vote = () => {
                                 )}
                             </button>
                         </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Face Verification Modal */}
+            <AnimatePresence>
+                {showFaceVerification && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.9, y: 20 }}
+                            className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col"
+                        >
+                            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                                <div>
+                                    <h3 className="text-xl font-black text-slate-800">Security Check</h3>
+                                    <p className="text-sm text-slate-500 font-medium">Please verify your identity</p>
+                                </div>
+                                <button
+                                    onClick={() => setShowFaceVerification(false)}
+                                    className="p-2 hover:bg-slate-200 rounded-full transition-colors"
+                                >
+                                    <X className="w-6 h-6 text-slate-500" />
+                                </button>
+                            </div>
+
+                            <div className="p-6">
+                                {voting ? (
+                                    <div className="py-12 flex flex-col items-center justify-center space-y-4">
+                                        <div className="w-12 h-12 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin" />
+                                        <p className="text-slate-600 font-bold animate-pulse">Verifying Face & Casting Vote...</p>
+                                    </div>
+                                ) : (
+                                    <FaceCapture
+                                        onCapture={handleVote}
+                                        buttonLabel="Verify & Cast Vote"
+                                    />
+                                )}
+                            </div>
+                        </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>
