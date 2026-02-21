@@ -15,7 +15,7 @@ const FaceCapture = ({ onCapture, buttonLabel = "Capture & Save Face" }) => {
             try {
                 const MODEL_URL = '/models';
                 await Promise.all([
-                    faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+                    faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
                     faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
                     faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
                 ]);
@@ -32,10 +32,20 @@ const FaceCapture = ({ onCapture, buttonLabel = "Capture & Save Face" }) => {
         setIsCapturing(true);
         setCaptured(false);
         setError('');
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+        const constraints = {
+            video: {
+                facingMode: "user",
+                width: { ideal: 640 },
+                height: { ideal: 480 }
+            }
+        };
+
+        navigator.mediaDevices.getUserMedia(constraints)
             .then((stream) => {
                 let video = videoRef.current;
                 video.srcObject = stream;
+                // playsInline required for iOS
+                video.setAttribute('playsinline', true);
                 video.play();
             })
             .catch((err) => {
@@ -51,7 +61,7 @@ const FaceCapture = ({ onCapture, buttonLabel = "Capture & Save Face" }) => {
         try {
             const detection = await faceapi.detectSingleFace(
                 videoRef.current,
-                new faceapi.TinyFaceDetectorOptions()
+                new faceapi.SsdMobilenetv1Options({ minConfidence: 0.8 })
             ).withFaceLandmarks().withFaceDescriptor();
 
             if (detection) {
@@ -110,11 +120,12 @@ const FaceCapture = ({ onCapture, buttonLabel = "Capture & Save Face" }) => {
             )}
 
             {isCapturing && (
-                <div className="relative rounded-2xl overflow-hidden w-full max-w-sm aspect-video bg-black shadow-inner">
+                <div className="relative rounded-2xl overflow-hidden w-full max-w-sm aspect-[3/4] sm:aspect-video bg-black shadow-inner">
                     <video
                         ref={videoRef}
                         className="w-full h-full object-cover transform scale-x-[-1]" // Mirror effect
                         autoPlay
+                        playsInline
                         muted
                     />
                     <div className="absolute inset-0 border-4 border-violet-500/30 rounded-2xl pointer-events-none"></div>

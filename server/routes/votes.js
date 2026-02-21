@@ -42,8 +42,8 @@ router.post('/', authenticate, async (req, res) => {
 
         const distance = getEuclideanDistance(user.faceDescriptor, liveFaceDescriptor);
 
-        // face-api.js default threshold is 0.6. We use 0.55 for slightly stricter security.
-        if (distance > 0.55) {
+        // Stricter threshold: 0.45 provides stronger verification than the 0.6 default
+        if (distance > 0.45) {
             return res.status(401).json({ message: 'Face verification failed. Make sure you are the registered voter and in good lighting.' });
         }
 
