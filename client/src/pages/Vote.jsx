@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Vote as VoteIcon, User, CheckCircle2, AlertCircle, Award, X } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { API_URL } from '../config';
 import FaceCapture from '../components/FaceCapture';
 
@@ -38,8 +39,11 @@ const Vote = () => {
         checkStatus();
     }, []);
 
-    const handleVoteInitiation = () => {
+    const handleVoteInitiation = async () => {
         if (!selectedCandidate) return;
+
+        try { await Haptics.impact({ style: ImpactStyle.Heavy }); } catch (e) { }
+
         const confirmVote = window.confirm(`Confirm your vote for ${selectedCandidate.name}?`);
         if (confirmVote) {
             setShowFaceVerification(true);
@@ -61,6 +65,8 @@ const Vote = () => {
             const user = JSON.parse(localStorage.getItem('user'));
             user.hasVoted = true;
             localStorage.setItem('user', JSON.stringify(user));
+
+            try { await Haptics.impact({ style: ImpactStyle.Heavy }); } catch (e) { }
 
             // Success Animation
             confetti({
@@ -152,7 +158,10 @@ const Vote = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: idx * 0.1 }}
-                            onClick={() => setSelectedCandidate(candidate)}
+                            onClick={() => {
+                                try { Haptics.impact({ style: ImpactStyle.Light }); } catch (e) { }
+                                setSelectedCandidate(candidate);
+                            }}
                             className={`cursor-pointer group relative bg-white rounded-[2rem] overflow-hidden transition-all duration-500 ${selectedCandidate?._id === candidate._id
                                 ? 'ring-4 ring-violet-500 shadow-2xl scale-[1.02] z-10'
                                 : 'hover:shadow-xl hover:-translate-y-2 border border-slate-100'

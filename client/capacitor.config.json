@@ -3,6 +3,7 @@
   "appName": "iVote",
   "webDir": "dist",
   "server": {
+    "url": "https://client-amber-rho-76.vercel.app",
     "cleartext": true,
     "androidScheme": "http",
     "errorPath": "network-error.html"

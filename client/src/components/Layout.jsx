@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
+import BottomNav from './BottomNav';
 import { AnimatePresence, motion } from 'framer-motion';
 
 const Layout = ({ children }) => {
@@ -31,7 +32,7 @@ const Layout = ({ children }) => {
         <div className={`min-h-screen font-sans transition-colors duration-500 ${getBackgroundClass()}`}>
             {!isLoginPage && <Navbar />}
 
-            <div className={isLoginPage ? '' : 'pt-24 px-4 pb-12'}>
+            <div className={isLoginPage ? '' : 'pt-6 md:pt-24 px-4 pb-32 md:pb-12 env-safe-bottom'}>
                 <div className={isLoginPage ? '' : 'container mx-auto max-w-7xl'}>
                     <AnimatePresence mode="wait">
                         <motion.div
@@ -46,6 +47,9 @@ const Layout = ({ children }) => {
                     </AnimatePresence>
                 </div>
             </div>
+
+            {/* Render BottomNav on mobile unless it's the login page */}
+            {!isLoginPage && <BottomNav />}
         </div>
     );
 };

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Vote, FileText, CheckCircle2, Clock, ChevronRight, Star, ExternalLink } from 'lucide-react';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import studentHero from '../assets/modern_voting_hero_v2.png';
 
 const Dashboard = () => {
@@ -55,6 +56,7 @@ const Dashboard = () => {
                             >
                                 <Link
                                     to="/vote"
+                                    onClick={() => { try { Haptics.impact({ style: ImpactStyle.Light }); } catch (e) { } }}
                                     className="inline-flex items-center space-x-3 bg-white text-slate-900 px-8 py-4 rounded-full font-bold text-lg hover:bg-violet-50 transition-all shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] group"
                                 >
                                     <span>Vote Now</span>
@@ -115,7 +117,11 @@ const Dashboard = () => {
                     transition={{ delay: 0.6 }}
                     className="bg-slate-50 rounded-[2rem] p-8 border border-slate-100 hover:bg-white hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 group cursor-pointer"
                 >
-                    <Link to="/manifesto" className="block h-full flex flex-col justify-between">
+                    <Link
+                        to="/manifesto"
+                        onClick={() => { try { Haptics.impact({ style: ImpactStyle.Light }); } catch (e) { } }}
+                        className="block h-full flex flex-col justify-between"
+                    >
                         <div>
                             <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-slate-900 mb-6 shadow-sm border border-slate-100 group-hover:scale-110 transition-transform">
                                 <FileText className="w-6 h-6" />

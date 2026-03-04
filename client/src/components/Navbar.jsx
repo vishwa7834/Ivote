@@ -68,7 +68,7 @@ const Navbar = () => {
         <motion.nav
             initial={{ y: -100 }}
             animate={{ y: 0 }}
-            className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-xl border-b ${theme.navBg} ${theme.borderColor} transition-colors duration-300`}
+            className={`hidden md:block fixed top-0 left-0 right-0 z-50 backdrop-blur-xl border-b ${theme.navBg} ${theme.borderColor} transition-colors duration-300`}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-20">
@@ -92,8 +92,8 @@ const Navbar = () => {
                                     key={link.path}
                                     to={link.path}
                                     className={`relative px-4 py-2.5 rounded-xl flex items-center space-x-2 font-medium transition-all duration-200 ${isActive
-                                            ? `${theme.activeBg} ${theme.activeText}`
-                                            : `${theme.textColor} hover:bg-gray-500/5 ${theme.hoverText}`
+                                        ? `${theme.activeBg} ${theme.activeText}`
+                                        : `${theme.textColor} hover:bg-gray-500/5 ${theme.hoverText}`
                                         }`}
                                 >
                                     <Icon className={`w-5 h-5 ${isActive ? 'scale-110' : ''}`} />
@@ -119,8 +119,8 @@ const Navbar = () => {
                             <button
                                 onClick={handleLogout}
                                 className={`p-2.5 rounded-xl transition-all duration-200 group ${isAdmin
-                                        ? 'hover:bg-red-900/30 text-slate-400 hover:text-red-400'
-                                        : 'hover:bg-red-50 text-gray-500 hover:text-red-600'
+                                    ? 'hover:bg-red-900/30 text-slate-400 hover:text-red-400'
+                                    : 'hover:bg-red-50 text-gray-500 hover:text-red-600'
                                     }`}
                                 title="Logout"
                             >
@@ -167,8 +167,8 @@ const Navbar = () => {
                                     to={link.path}
                                     onClick={() => setIsMenuOpen(false)}
                                     className={`flex items-center space-x-3 px-4 py-3 rounded-xl ${location.pathname === link.path
-                                            ? `${theme.activeBg} ${theme.activeText}`
-                                            : `${theme.textColor}`
+                                        ? `${theme.activeBg} ${theme.activeText}`
+                                        : `${theme.textColor}`
                                         }`}
                                 >
                                     <link.icon className="w-5 h-5" />
