@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth');
 const candidateRoutes = require('./routes/candidates');
 const voteRoutes = require('./routes/votes');
 const grievanceRoutes = require('./routes/grievances');
+const profileRoutes = require('./routes/profile');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -97,6 +98,7 @@ app.use('/api/candidates', candidateRoutes);
 app.use('/api/vote', voteRoutes);
 app.use('/api/grievances', grievanceRoutes);
 app.use('/api/analytics', require('./routes/analytics'));
+app.use('/api/profile', profileRoutes);
 
 // Basic route
 app.get('/', (req, res) => {

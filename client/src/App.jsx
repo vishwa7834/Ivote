@@ -11,6 +11,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import Manifesto from './pages/Manifesto';
 import Vote from './pages/Vote';
 import Grievance from './pages/Grievance';
+import Profile from './pages/Profile';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
           <Route path="/manifesto" element={<Manifesto />} />
           <Route path="/vote" element={<Vote />} />
           <Route path="/grievance" element={<Grievance />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </Layout>
     </Router>

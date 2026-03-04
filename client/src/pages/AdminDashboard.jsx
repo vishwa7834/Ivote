@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import { Users, Vote, Activity, Settings, UserPlus, FileText, AlertTriangle, ShieldCheck, TrendingUp, Lock, Trash2, Plus, X } from 'lucide-react';
+import { Users, Vote, Activity, Settings, UserPlus, FileText, AlertTriangle, ShieldCheck, TrendingUp, Lock, Trash2, Plus, X, UserCog, Check, XCircle } from 'lucide-react';
 import adminBg from '../assets/admin_bg.png';
 import { API_URL } from '../config';
 
@@ -21,6 +21,9 @@ const AdminDashboard = () => {
     const [isCandidateModalOpen, setIsCandidateModalOpen] = useState(false);
     const [newCandidate, setNewCandidate] = useState({ name: '', position: '', manifesto: '', party: '' });
 
+    const [profileRequests, setProfileRequests] = useState([]);
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
@@ -38,12 +41,16 @@ const AdminDashboard = () => {
                                 headers: { Authorization: `Bearer ${token}` }
                             }),
                             axios.get(`${API_URL}/api/auth/users`),
-                            axios.get(`${API_URL}/api/candidates`)
+                            axios.get(`${API_URL}/api/candidates`),
+                            axios.get(`${API_URL}/api/profile/requests`, {
+                                headers: { Authorization: `Bearer ${token}` }
+                            })
                         ]);
 
                         setStats(analyticsRes.data);
                         setVoters(usersRes.data);
                         setCandidates(candidatesRes.data);
+                        setProfileRequests(profileRequestsRes.data);
                     } catch (e) {
                         console.warn("Using fallback data for design preview");
                         setStats({
@@ -106,8 +113,34 @@ const AdminDashboard = () => {
         }
     };
 
+    const handleProfileRequest = async (id, status) => {
+        try {
+            const token = localStorage.getItem('token');
+            await axios.put(`${API_URL}/api/profile/requests/${id}/resolve`, { status }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            // Remove the resolved request from the UI
+            setProfileRequests(profileRequests.filter(req => req._id !== id));
+            // Optional: refresh voters list if approved
+            if (status === 'approved') {
+                const usersRes = await axios.get(`${API_URL}/api/auth/users`);
+                setVoters(usersRes.data);
+            }
+        } catch (error) {
+            console.error('Failed to resolve profile request', error);
+            alert('Failed to update request');
+        }
+    };
+
     const actions = [
         { label: 'Manage Candidates', icon: UserPlus, desc: 'Add or edit election candidates', onClick: () => setIsCandidateModalOpen(true) },
+        {
+            label: 'Profile Requests',
+            icon: UserCog,
+            desc: `${profileRequests.filter(req => req.status === 'pending').length} pending updates`,
+            onClick: () => setIsProfileModalOpen(true),
+            highlight: profileRequests.filter(req => req.status === 'pending').length > 0
+        },
         { label: 'View Results', icon: FileText, desc: 'Real-time vote counting' },
         { label: 'System Settings', icon: Settings, desc: 'Configure election parameters' },
     ];
@@ -188,13 +221,16 @@ const AdminDashboard = () => {
                                     <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
                                     <div className="relative z-10">
-                                        <div className="p-3 rounded-lg bg-slate-900 w-fit mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg border border-slate-800">
+                                        <div className="p-3 rounded-lg bg-slate-900 w-fit mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg border border-slate-800 relative">
                                             <action.icon className="w-6 h-6 text-cyan-400" />
+                                            {action.highlight && (
+                                                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-slate-900 animate-pulse" />
+                                            )}
                                         </div>
                                         <h3 className="text-lg font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors">
                                             {action.label}
                                         </h3>
-                                        <p className="text-slate-400 text-sm leading-relaxed">
+                                        <p className={`${action.highlight ? 'text-amber-400 font-bold' : 'text-slate-400'} text-sm leading-relaxed`}>
                                             {action.desc}
                                         </p>
                                     </div>
@@ -473,6 +509,113 @@ const AdminDashboard = () => {
                                         <p className="text-slate-500 italic col-span-2 text-center py-8">No candidates registered yet.</p>
                                     )}
                                 </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+
+            {/* Profile Requests Modal */}
+            {isProfileModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-slate-900 border border-slate-700 w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+                    >
+                        <div className="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
+                            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                                <UserCog className="w-5 h-5 text-amber-400" />
+                                User Profile Update Requests
+                            </h3>
+                            <button onClick={() => setIsProfileModalOpen(false)} className="text-slate-400 hover:text-white transition-colors">
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        <div className="p-6 overflow-y-auto custom-scrollbar">
+                            <div className="space-y-4">
+                                {profileRequests.filter(req => req.status === 'pending').length > 0 ? (
+                                    profileRequests.filter(req => req.status === 'pending').map((req) => (
+                                        <div key={req._id} className="bg-slate-800/50 border border-slate-700 rounded-xl p-6 hover:border-slate-600 transition-colors">
+                                            <div className="flex justify-between items-start mb-4 border-b border-slate-700/50 pb-4">
+                                                <div>
+                                                    <h4 className="text-lg font-bold text-white">{req.userId?.name || 'Unknown User'}</h4>
+                                                    <p className="text-sm font-mono text-cyan-400">{req.userId?.rollNumber}</p>
+                                                    <p className="text-xs text-slate-500 mt-1">Requested: {new Date(req.createdAt).toLocaleString()}</p>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={() => handleProfileRequest(req._id, 'rejected')}
+                                                        className="px-4 py-2 bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/50 rounded-lg transition-colors flex items-center gap-2 text-sm font-bold"
+                                                    >
+                                                        <XCircle className="w-4 h-4" /> Reject
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleProfileRequest(req._id, 'approved')}
+                                                        className="px-4 py-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 hover:border-emerald-500/50 rounded-lg transition-colors flex items-center gap-2 text-sm font-bold shadow-[0_0_15px_rgba(16,185,129,0.1)]"
+                                                    >
+                                                        <Check className="w-4 h-4" /> Approve
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                {/* Current Details */}
+                                                <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-800">
+                                                    <h5 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Current Details</h5>
+                                                    <ul className="space-y-2 text-sm">
+                                                        <li className="flex flex-col">
+                                                            <span className="text-slate-500 text-xs">Name</span>
+                                                            <span className="text-slate-300">{req.userId?.name}</span>
+                                                        </li>
+                                                        <li className="flex flex-col">
+                                                            <span className="text-slate-500 text-xs">Phone</span>
+                                                            <span className="text-slate-300">{req.userId?.phone}</span>
+                                                        </li>
+                                                        <li className="flex flex-col">
+                                                            <span className="text-slate-500 text-xs">Email</span>
+                                                            <span className="text-slate-300">{req.userId?.email || 'N/A'}</span>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+
+                                                {/* Requested Updates */}
+                                                <div className="bg-amber-900/10 p-4 rounded-lg border border-amber-500/20">
+                                                    <h5 className="text-xs font-bold text-amber-500/70 uppercase tracking-wider mb-3">Requested Changes</h5>
+                                                    <ul className="space-y-2 text-sm">
+                                                        <li className="flex flex-col">
+                                                            <span className="text-amber-500/50 text-xs">Name</span>
+                                                            <span className={req.requestedChanges.name !== req.userId?.name ? "text-amber-400 font-bold" : "text-slate-500"}>
+                                                                {req.requestedChanges.name || 'No change'}
+                                                            </span>
+                                                        </li>
+                                                        <li className="flex flex-col">
+                                                            <span className="text-amber-500/50 text-xs">Phone</span>
+                                                            <span className={req.requestedChanges.phone !== req.userId?.phone ? "text-amber-400 font-bold" : "text-slate-500"}>
+                                                                {req.requestedChanges.phone || 'No change'}
+                                                            </span>
+                                                        </li>
+                                                        <li className="flex flex-col">
+                                                            <span className="text-amber-500/50 text-xs">Email</span>
+                                                            <span className={req.requestedChanges.email !== req.userId?.email ? "text-amber-400 font-bold" : "text-slate-500"}>
+                                                                {req.requestedChanges.email || 'No change'}
+                                                            </span>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="text-center py-12">
+                                        <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-700">
+                                            <ShieldCheck className="w-8 h-8 text-emerald-500" />
+                                        </div>
+                                        <p className="text-slate-400 font-medium">All caught up!</p>
+                                        <p className="text-slate-500 text-sm mt-1">There are no pending profile update requests.</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </motion.div>

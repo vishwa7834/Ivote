@@ -62,6 +62,7 @@ const Navbar = () => {
         !isAdmin && { path: '/manifesto', label: 'Manifestos', icon: FileText },
         !isAdmin && { path: '/vote', label: 'Vote', icon: VoteIcon },
         { path: '/grievance', label: 'Grievances', icon: AlertCircle },
+        !isAdmin && { path: '/profile', label: 'My Profile', icon: User },
     ].filter(Boolean);
 
     return (
