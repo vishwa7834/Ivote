@@ -9,6 +9,7 @@ import FaceCapture from '../components/FaceCapture';
 const Register = () => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [formData, setFormData] = useState({
@@ -54,8 +55,7 @@ const Register = () => {
                 // role defaults to student in backend
             });
 
-            alert("Registration Successful! Please login.");
-            navigate('/');
+            setIsSuccess(true);
         } catch (err) {
             console.error(err);
             const errorMsg = err.response?.data?.message || err.message;
@@ -75,7 +75,7 @@ const Register = () => {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5 }}
-                className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row"
+                className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row relative"
             >
                 {/* Image Section */}
                 <div className="hidden md:block w-1/2 relative">
@@ -93,7 +93,36 @@ const Register = () => {
                 </div>
 
                 {/* Form Section */}
-                <div className="w-full md:w-1/2 p-8 md:p-12 bg-white">
+                <div className="w-full md:w-1/2 p-8 md:p-12 bg-white relative">
+                    {/* Success Overlay */}
+                    {isSuccess && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="absolute inset-0 bg-white z-50 flex flex-col items-center justify-center p-8 text-center"
+                        >
+                            <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ type: "spring", bounce: 0.5, delay: 0.2 }}
+                                className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6"
+                            >
+                                <svg className="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                </svg>
+                            </motion.div>
+                            <h2 className="text-3xl font-black text-slate-800 mb-4">Registration Successful!</h2>
+                            <p className="text-slate-500 mb-8 max-w-sm">Your account has been created successfully. Your face data is securely stored for voting verification.</p>
+                            <button
+                                onClick={() => navigate('/')}
+                                className="w-full bg-gradient-to-r from-violet-600 to-pink-500 hover:from-violet-500 hover:to-pink-400 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center space-x-2"
+                            >
+                                <span>Login Now</span>
+                                <ArrowRight className="w-5 h-5" />
+                            </button>
+                        </motion.div>
+                    )}
+
                     <div className="mb-8">
                         <h2 className="text-3xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-pink-500">
                             Create Account
