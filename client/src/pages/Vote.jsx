@@ -223,23 +223,23 @@ const Vote = () => {
                             initial={{ y: 200, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             exit={{ y: 200, opacity: 0 }}
-                            className="fixed bottom-0 left-0 right-0 p-6 z-50 pointer-events-none"
+                            className="fixed bottom-0 left-0 right-0 p-4 pb-32 md:p-6 z-40 pointer-events-none"
                         >
-                            <div className="max-w-2xl mx-auto bg-white/90 backdrop-blur-2xl border border-white/50 shadow-[0_0_50px_rgba(0,0,0,0.2)] rounded-3xl p-4 md:p-6 flex flex-col md:flex-row items-center justify-between gap-6 pointer-events-auto">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center text-violet-600 font-bold text-xl">
+                            <div className="max-w-2xl mx-auto bg-white/95 backdrop-blur-2xl border border-white/50 shadow-[0_10px_40px_rgba(0,0,0,0.2)] rounded-[2rem] p-4 md:p-6 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 pointer-events-auto">
+                                <div className="flex items-center gap-3 w-full sm:w-auto">
+                                    <div className="w-12 h-12 shrink-0 bg-violet-100 rounded-xl flex items-center justify-center text-violet-600 font-bold text-xl shadow-inner">
                                         {selectedCandidate.name.charAt(0)}
                                     </div>
-                                    <div>
-                                        <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Selected Candidate</p>
-                                        <p className="text-xl font-bold text-slate-900">{selectedCandidate.name}</p>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-[10px] md:text-xs text-slate-500 font-bold uppercase tracking-wider truncate">Selected Candidate</p>
+                                        <p className="text-lg md:text-xl font-bold text-slate-900 truncate">{selectedCandidate.name}</p>
                                     </div>
                                 </div>
 
                                 <button
                                     onClick={handleVoteInitiation}
                                     disabled={voting}
-                                    className="w-full md:w-auto bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-8 py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-violet-500/30 hover:-translate-y-1 active:translate-y-0 transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed"
+                                    className="w-full sm:w-auto shrink-0 bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-6 py-3.5 md:px-8 md:py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-violet-500/30 hover:-translate-y-1 active:translate-y-0 transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed"
                                 >
                                     {voting ? (
                                         <>
