@@ -18,6 +18,15 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Serve static AI models directory for Capacitor Android clients
+const path = require('path');
+app.use('/models', express.static(path.join(__dirname, 'public/models'), {
+    setHeaders: (res, path) => {
+        // Critical for Capacitor WebViews requesting static models across origins
+        res.setHeader('Access-Control-Allow-Origin', '*');
+    }
+}));
+
 // Request Logger
 app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
@@ -75,6 +84,14 @@ app.get('/api/health', async (req, res) => {
     });
 });
 
+// Ensure database is connected before handling API requests
+app.use(async (req, res, next) => {
+    if (mongoose.connection.readyState !== 1) {
+        await connectDB();
+    }
+    next();
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/candidates', candidateRoutes);
 app.use('/api/vote', voteRoutes);
@@ -88,8 +105,8 @@ app.get('/', (req, res) => {
 
 // Export the app for Vercel Serverless
 if (process.env.NODE_ENV !== 'production') {
-    app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`Server running on port ${PORT} and binding to all local IPs`);
     });
 }
 

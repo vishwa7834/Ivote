@@ -41,7 +41,12 @@ const Login = () => {
             }
         } catch (err) {
             console.error(err);
-            alert('Login failed: ' + (err.response?.data?.message || err.message));
+            const errorMsg = err.response?.data?.message || err.message;
+            if (errorMsg === 'Network Error') {
+                alert('Connection failed. Please check your internet connection and try again.');
+            } else {
+                alert('Login failed: ' + errorMsg);
+            }
         } finally {
             setIsLoading(false);
         }
@@ -57,28 +62,39 @@ const Login = () => {
         : "bg-gradient-to-r from-violet-600 to-pink-500 hover:from-violet-500 hover:to-pink-400";
 
     return (
-        <div className={`min-h-screen flex items-center justify-center p-4 transition-colors duration-500 ${isAdmin ? 'bg-slate-950' : 'bg-gray-50'}`}>
+        <div className={`min-h-screen flex items-center justify-center p-4 transition-colors duration-500 relative overflow-hidden`}>
+            {/* Ambient Background */}
+            <div className="absolute inset-0 z-0">
+                <img
+                    src="/assets/bg_login.png"
+                    alt="Abstract Background"
+                    className="w-full h-full object-cover scale-105 animate-[pulse_10s_ease-in-out_infinite]"
+                />
+                <div className={`absolute inset-0 ${isAdmin ? 'bg-slate-950/80' : 'bg-indigo-950/50'} backdrop-blur-md`}></div>
+            </div>
+
             <motion.div
                 layout
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
-                className={`w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row relative z-10 ${isAdmin ? 'bg-slate-900 text-white' : 'bg-white'}`}
+                className={`w-full max-w-6xl rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row relative z-10 border ${isAdmin ? 'bg-slate-900/80 border-slate-700/50 text-white' : 'bg-white/80 border-white/50 backdrop-blur-xl'}`}
             >
-                {/* Image Section */}
+                {/* Image Section - Now acting as an internal text/brand showcase */}
                 <div className="hidden md:block w-1/2 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-violet-600/40 to-pink-500/40 mix-blend-overlay z-0"></div>
                     <img
-                        src="/assets/voting_login_hero.png"
+                        src="/assets/bg_login.png"
                         alt="Voting Hero"
-                        className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-1000"
+                        className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-1000 saturate-150"
                     />
-                    <div className={`absolute inset-0 bg-gradient-to-t ${isAdmin ? 'from-black/90 via-black/50' : 'from-indigo-900/80 via-purple-900/40'} to-transparent flex items-end p-12`}>
+                    <div className={`absolute inset-0 bg-gradient-to-t ${isAdmin ? 'from-slate-900/90 via-slate-900/50' : 'from-indigo-900/90 via-purple-900/40'} to-transparent flex items-end p-12`}>
                         <div className="relative z-10">
                             <motion.h2
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.3 }}
-                                className="text-4xl font-bold mb-4 text-white"
+                                className="text-4xl md:text-5xl font-black mb-4 text-white drop-shadow-lg"
                             >
                                 Secure Democracy
                             </motion.h2>
@@ -86,16 +102,16 @@ const Login = () => {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.4 }}
-                                className="text-gray-200 text-lg leading-relaxed"
+                                className="text-gray-200 text-lg leading-relaxed drop-shadow-md font-medium"
                             >
-                                Experience the future of voting with our transparent, digital voting platform.
+                                Experience the future of voting with our transparent, digital, and beautifully designed voting platform.
                             </motion.p>
                         </div>
                     </div>
                 </div>
 
                 {/* Form Section */}
-                <div className={`w-full md:w-1/2 p-8 md:p-16 flex flex-col justify-center relative ${isAdmin ? 'bg-slate-900' : 'bg-white'}`}>
+                <div className={`w-full md:w-1/2 p-8 md:p-16 flex flex-col justify-center relative ${isAdmin ? 'bg-slate-900/50 backdrop-blur-lg' : 'bg-white/60 backdrop-blur-2xl'}`}>
                     {/* Role Toggles */}
                     <div className="absolute top-8 right-8">
                         <div className={`flex p-1.5 rounded-2xl ${isAdmin ? 'bg-slate-800' : 'bg-gray-100'}`}>
@@ -161,8 +177,8 @@ const Login = () => {
                                         onChange={(e) => setRollNumber(e.target.value)}
                                         placeholder={isAdmin ? "Enter Admin Email" : "Enter Registration/Roll No."}
                                         className={`w-full pl-12 pr-4 py-4 border rounded-xl outline-none transition-all ${isAdmin
-                                            ? 'bg-slate-800 border-slate-700 focus:border-emerald-500 text-white placeholder-slate-500'
-                                            : 'bg-white border-gray-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-200'
+                                            ? 'bg-slate-800/80 border-slate-700 focus:border-emerald-500 text-white placeholder-slate-500'
+                                            : 'bg-white/80 border-white focus:border-violet-500 focus:ring-2 focus:ring-violet-200/50 shadow-sm'
                                             }`}
                                         required
                                     />
@@ -181,8 +197,8 @@ const Login = () => {
                                         onChange={(e) => setPassword(e.target.value)}
                                         placeholder="Enter Password"
                                         className={`w-full pl-12 pr-4 py-4 border rounded-xl outline-none transition-all ${isAdmin
-                                            ? 'bg-slate-800 border-slate-700 focus:border-emerald-500 text-white placeholder-slate-500'
-                                            : 'bg-white border-gray-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-200'
+                                            ? 'bg-slate-800/80 border-slate-700 focus:border-emerald-500 text-white placeholder-slate-500'
+                                            : 'bg-white/80 border-white focus:border-violet-500 focus:ring-2 focus:ring-violet-200/50 shadow-sm'
                                             }`}
                                         required
                                     />

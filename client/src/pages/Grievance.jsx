@@ -36,7 +36,12 @@ const Grievance = () => {
             setDescription('');
             fetchGrievances();
         } catch (err) {
-            alert('Failed to submit: ' + (err.response?.data?.message || err.message));
+            const errorMsg = err.response?.data?.message || err.message;
+            if (errorMsg === 'Network Error') {
+                alert('Connection failed. Please check your internet connection and try again.');
+            } else {
+                alert('Failed to submit: ' + errorMsg);
+            }
         } finally {
             setIsSubmitting(false);
         }

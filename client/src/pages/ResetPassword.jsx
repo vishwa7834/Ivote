@@ -26,7 +26,12 @@ const ResetPassword = () => {
             navigate('/');
         } catch (err) {
             console.error(err);
-            alert('Reset failed: ' + (err.response?.data?.message || err.message));
+            const errorMsg = err.response?.data?.message || err.message;
+            if (errorMsg === 'Network Error') {
+                alert('Connection failed. Please check your internet connection and try again.');
+            } else {
+                alert('Reset failed: ' + errorMsg);
+            }
         } finally {
             setIsLoading(false);
         }

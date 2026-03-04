@@ -1,0 +1,10 @@
+{
+  "appId": "com.vishwaraj.ivote",
+  "appName": "iVote",
+  "webDir": "dist",
+  "server": {
+    "cleartext": true,
+    "androidScheme": "http",
+    "errorPath": "network-error.html"
+  }
+}

@@ -74,7 +74,12 @@ const Vote = () => {
             }, 2000);
 
         } catch (err) {
-            alert('Voting failed: ' + (err.response?.data?.message || err.message));
+            const errorMsg = err.response?.data?.message || err.message;
+            if (errorMsg === 'Network Error') {
+                alert('Connection failed. Please check your internet connection and try again.');
+            } else {
+                alert('Voting failed: ' + errorMsg);
+            }
             setShowFaceVerification(false);
         } finally {
             setVoting(false);
@@ -105,179 +110,191 @@ const Vote = () => {
     );
 
     return (
-        <div className="max-w-7xl mx-auto px-4 py-8 space-y-8 min-h-screen">
-            <div className="text-center space-y-4 mb-16">
-                <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="inline-flex items-center space-x-2 bg-violet-100 text-violet-700 px-4 py-1.5 rounded-full text-sm font-bold mb-4"
-                >
-                    <Award className="w-4 h-4" />
-                    <span>Official Ballot Phase</span>
-                </motion.div>
-                <motion.h1
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="text-5xl md:text-6xl font-black bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 bg-clip-text text-transparent tracking-tight"
-                >
-                    Cast Your Vote
-                </motion.h1>
-                <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                    className="text-slate-500 max-w-2xl mx-auto text-lg leading-relaxed"
-                >
-                    Select a candidate below to view their details. Once you are sure, confirm your choice to cast your secure digital ballot.
-                </motion.p>
+        <div className="relative min-h-screen">
+            {/* Soft Ambient Background Elements */}
+            <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+                <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-violet-400/20 blur-[120px] rounded-full mix-blend-multiply"></div>
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40rem] h-[40rem] bg-pink-400/20 blur-[150px] rounded-full mix-blend-multiply"></div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-32">
-                {candidates.map((candidate, idx) => (
+            <div className="max-w-7xl mx-auto px-4 py-12 space-y-8 relative z-10">
+                <div className="text-center space-y-4 mb-16">
                     <motion.div
-                        key={candidate._id}
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.1 }}
-                        onClick={() => setSelectedCandidate(candidate)}
-                        className={`cursor-pointer group relative bg-white rounded-[2rem] overflow-hidden transition-all duration-500 ${selectedCandidate?._id === candidate._id
-                            ? 'ring-4 ring-violet-500 shadow-2xl scale-[1.02] z-10'
-                            : 'hover:shadow-xl hover:-translate-y-2 border border-slate-100'
-                            }`}
+                        className="inline-flex items-center space-x-2 bg-violet-100 text-violet-700 px-4 py-1.5 rounded-full text-sm font-bold mb-4"
                     >
-                        {/* Background Decoration */}
-                        <div className={`absolute top-0 inset-x-0 h-32 bg-gradient-to-br ${selectedCandidate?._id === candidate._id
-                            ? 'from-violet-600 to-purple-600'
-                            : 'from-slate-100 to-slate-200'
-                            }`} />
-
-                        {/* Selected Indicator */}
-                        <div className="absolute top-4 right-4 z-20">
-                            <motion.div
-                                initial={false}
-                                animate={{ scale: selectedCandidate?._id === candidate._id ? 1 : 0 }}
-                                className="bg-white rounded-full p-2 shadow-lg"
-                            >
-                                <CheckCircle2 className="w-6 h-6 text-violet-600" />
-                            </motion.div>
-                        </div>
-
-                        <div className="relative pt-12 px-8 pb-8 flex flex-col items-center text-center h-full">
-                            {/* Avatar */}
-                            <div className={`w-28 h-28 rounded-2xl flex items-center justify-center text-4xl font-bold mb-6 shadow-xl transform group-hover:scale-110 transition-transform duration-500 ${selectedCandidate?._id === candidate._id
-                                ? 'bg-white text-violet-600'
-                                : 'bg-white text-slate-400'
-                                }`}>
-                                {candidate.name.charAt(0)}
-                            </div>
-
-                            <div className="flex-1 space-y-4">
-                                <div>
-                                    <h3 className="text-2xl font-black text-slate-800 mb-1">{candidate.name}</h3>
-                                    <p className="text-violet-600 font-bold uppercase tracking-wider text-sm">{candidate.position}</p>
-                                </div>
-
-                                <div className="inline-block px-4 py-1.5 bg-slate-100 rounded-lg text-slate-600 text-xs font-bold uppercase tracking-wide">
-                                    {candidate.party || 'Independent'}
-                                </div>
-
-                                <p className="text-slate-500 text-sm leading-relaxed border-t border-slate-100 pt-4">
-                                    "{candidate.manifesto}"
-                                </p>
-                            </div>
-                        </div>
+                        <Award className="w-4 h-4" />
+                        <span>Official Ballot Phase</span>
                     </motion.div>
-                ))}
-            </div>
-
-            {/* Sticky Vote Bar */}
-            <AnimatePresence>
-                {selectedCandidate && (
-                    <motion.div
-                        initial={{ y: 200, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: 200, opacity: 0 }}
-                        className="fixed bottom-0 left-0 right-0 p-6 z-50 pointer-events-none"
+                    <motion.h1
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="text-5xl md:text-6xl font-black bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 bg-clip-text text-transparent tracking-tight"
                     >
-                        <div className="max-w-2xl mx-auto bg-white/90 backdrop-blur-2xl border border-white/50 shadow-[0_0_50px_rgba(0,0,0,0.2)] rounded-3xl p-4 md:p-6 flex flex-col md:flex-row items-center justify-between gap-6 pointer-events-auto">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center text-violet-600 font-bold text-xl">
-                                    {selectedCandidate.name.charAt(0)}
-                                </div>
-                                <div>
-                                    <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Selected Candidate</p>
-                                    <p className="text-xl font-bold text-slate-900">{selectedCandidate.name}</p>
-                                </div>
-                            </div>
-
-                            <button
-                                onClick={handleVoteInitiation}
-                                disabled={voting}
-                                className="w-full md:w-auto bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-8 py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-violet-500/30 hover:-translate-y-1 active:translate-y-0 transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed"
-                            >
-                                {voting ? (
-                                    <>
-                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                        <span>Submitting...</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <span>Confirm Vote</span>
-                                        <VoteIcon className="w-5 h-5" />
-                                    </>
-                                )}
-                            </button>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* Face Verification Modal */}
-            <AnimatePresence>
-                {showFaceVerification && (
-                    <motion.div
+                        Cast Your Vote
+                    </motion.h1>
+                    <motion.p
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
+                        transition={{ delay: 0.2 }}
+                        className="text-slate-500 max-w-2xl mx-auto text-lg leading-relaxed"
                     >
+                        Select a candidate below to view their details. Once you are sure, confirm your choice to cast your secure digital ballot.
+                    </motion.p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-32">
+                    {candidates.map((candidate, idx) => (
                         <motion.div
-                            initial={{ scale: 0.9, y: 20 }}
-                            animate={{ scale: 1, y: 0 }}
-                            exit={{ scale: 0.9, y: 20 }}
-                            className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col"
+                            key={candidate._id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: idx * 0.1 }}
+                            onClick={() => setSelectedCandidate(candidate)}
+                            className={`cursor-pointer group relative bg-white rounded-[2rem] overflow-hidden transition-all duration-500 ${selectedCandidate?._id === candidate._id
+                                ? 'ring-4 ring-violet-500 shadow-2xl scale-[1.02] z-10'
+                                : 'hover:shadow-xl hover:-translate-y-2 border border-slate-100'
+                                }`}
                         >
-                            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                                <div>
-                                    <h3 className="text-xl font-black text-slate-800">Security Check</h3>
-                                    <p className="text-sm text-slate-500 font-medium">Please verify your identity</p>
-                                </div>
-                                <button
-                                    onClick={() => setShowFaceVerification(false)}
-                                    className="p-2 hover:bg-slate-200 rounded-full transition-colors"
+                            {/* Background Decoration */}
+                            <div className={`absolute top-0 inset-x-0 h-32 bg-gradient-to-br ${selectedCandidate?._id === candidate._id
+                                ? 'from-violet-600 to-purple-600'
+                                : 'from-slate-100 to-slate-200'
+                                }`} />
+
+                            {/* Selected Indicator */}
+                            <div className="absolute top-4 right-4 z-20">
+                                <motion.div
+                                    initial={false}
+                                    animate={{ scale: selectedCandidate?._id === candidate._id ? 1 : 0 }}
+                                    className="bg-white rounded-full p-2 shadow-lg"
                                 >
-                                    <X className="w-6 h-6 text-slate-500" />
-                                </button>
+                                    <CheckCircle2 className="w-6 h-6 text-violet-600" />
+                                </motion.div>
                             </div>
 
-                            <div className="p-6">
-                                {voting ? (
-                                    <div className="py-12 flex flex-col items-center justify-center space-y-4">
-                                        <div className="w-12 h-12 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin" />
-                                        <p className="text-slate-600 font-bold animate-pulse">Verifying Face & Casting Vote...</p>
+                            <div className="relative pt-12 px-8 pb-8 flex flex-col items-center text-center h-full">
+                                {/* Avatar */}
+                                <div className={`w-32 h-32 rounded-3xl flex items-center justify-center text-4xl font-bold mb-6 shadow-2xl transform group-hover:scale-110 group-hover:-translate-y-2 transition-all duration-500 overflow-hidden ring-4 ${selectedCandidate?._id === candidate._id
+                                    ? 'bg-white text-violet-600 ring-violet-500 ring-offset-4 ring-offset-slate-50'
+                                    : 'bg-slate-100 text-slate-400 ring-transparent'
+                                    }`}>
+                                    {candidate.imageUrl ? (
+                                        <img src={candidate.imageUrl} alt={candidate.name} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <img src="/assets/candidate_default.png" alt="Default Candidate" className="w-full h-full object-cover" />
+                                    )}
+                                </div>
+
+                                <div className="flex-1 space-y-4">
+                                    <div>
+                                        <h3 className="text-2xl font-black text-slate-800 mb-1">{candidate.name}</h3>
+                                        <p className="text-violet-600 font-bold uppercase tracking-wider text-sm">{candidate.position}</p>
                                     </div>
-                                ) : (
-                                    <FaceCapture
-                                        onCapture={handleVote}
-                                        buttonLabel="Verify & Cast Vote"
-                                    />
-                                )}
+
+                                    <div className="inline-block px-4 py-1.5 bg-slate-100 rounded-lg text-slate-600 text-xs font-bold uppercase tracking-wide">
+                                        {candidate.party || 'Independent'}
+                                    </div>
+
+                                    <p className="text-slate-500 text-sm leading-relaxed border-t border-slate-100 pt-4">
+                                        "{candidate.manifesto}"
+                                    </p>
+                                </div>
                             </div>
                         </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                    ))}
+                </div>
+
+                {/* Sticky Vote Bar */}
+                <AnimatePresence>
+                    {selectedCandidate && (
+                        <motion.div
+                            initial={{ y: 200, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: 200, opacity: 0 }}
+                            className="fixed bottom-0 left-0 right-0 p-6 z-50 pointer-events-none"
+                        >
+                            <div className="max-w-2xl mx-auto bg-white/90 backdrop-blur-2xl border border-white/50 shadow-[0_0_50px_rgba(0,0,0,0.2)] rounded-3xl p-4 md:p-6 flex flex-col md:flex-row items-center justify-between gap-6 pointer-events-auto">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center text-violet-600 font-bold text-xl">
+                                        {selectedCandidate.name.charAt(0)}
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Selected Candidate</p>
+                                        <p className="text-xl font-bold text-slate-900">{selectedCandidate.name}</p>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={handleVoteInitiation}
+                                    disabled={voting}
+                                    className="w-full md:w-auto bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-8 py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-violet-500/30 hover:-translate-y-1 active:translate-y-0 transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed"
+                                >
+                                    {voting ? (
+                                        <>
+                                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            <span>Submitting...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span>Confirm Vote</span>
+                                            <VoteIcon className="w-5 h-5" />
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* Face Verification Modal */}
+                <AnimatePresence>
+                    {showFaceVerification && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
+                        >
+                            <motion.div
+                                initial={{ scale: 0.9, y: 20 }}
+                                animate={{ scale: 1, y: 0 }}
+                                exit={{ scale: 0.9, y: 20 }}
+                                className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col"
+                            >
+                                <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                                    <div>
+                                        <h3 className="text-xl font-black text-slate-800">Security Check</h3>
+                                        <p className="text-sm text-slate-500 font-medium">Please verify your identity</p>
+                                    </div>
+                                    <button
+                                        onClick={() => setShowFaceVerification(false)}
+                                        className="p-2 hover:bg-slate-200 rounded-full transition-colors"
+                                    >
+                                        <X className="w-6 h-6 text-slate-500" />
+                                    </button>
+                                </div>
+
+                                <div className="p-6">
+                                    {voting ? (
+                                        <div className="py-12 flex flex-col items-center justify-center space-y-4">
+                                            <div className="w-12 h-12 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin" />
+                                            <p className="text-slate-600 font-bold animate-pulse">Verifying Face & Casting Vote...</p>
+                                        </div>
+                                    ) : (
+                                        <FaceCapture
+                                            onCapture={handleVote}
+                                            buttonLabel="Verify & Cast Vote"
+                                        />
+                                    )}
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
         </div>
     );
 };

@@ -20,7 +20,12 @@ const ForgotPassword = () => {
             setIsSent(true);
         } catch (err) {
             console.error(err);
-            alert('Failed to process request: ' + (err.response?.data?.message || err.message));
+            const errorMsg = err.response?.data?.message || err.message;
+            if (errorMsg === 'Network Error') {
+                alert('Connection failed. Please check your internet connection and try again.');
+            } else {
+                alert('Failed to process request: ' + errorMsg);
+            }
         } finally {
             setIsLoading(false);
         }

@@ -56,7 +56,12 @@ const Register = () => {
             navigate('/');
         } catch (err) {
             console.error(err);
-            alert('Registration failed: ' + (err.response?.data?.message || err.message));
+            const errorMsg = err.response?.data?.message || err.message;
+            if (errorMsg === 'Network Error') {
+                alert('Connection failed. Please check your internet connection and try again.');
+            } else {
+                alert('Registration failed: ' + errorMsg);
+            }
         } finally {
             setIsLoading(false);
         }
