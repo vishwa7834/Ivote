@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, ArrowRight, Loader, User, ShieldCheck, CreditCard, Mail } from 'lucide-react';
+import { Lock, ArrowRight, Loader, User, ShieldCheck, CreditCard, Mail, Eye, EyeOff } from 'lucide-react';
 import { API_URL } from '../config';
 
 const Login = () => {
     const [rollNumber, setRollNumber] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false); // Toggle for Admin Mode
     const navigate = useNavigate();
@@ -192,16 +193,23 @@ const Login = () => {
                                 <div className="relative">
                                     <Lock className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${isAdmin ? 'text-slate-500' : 'text-gray-400'} group-focus-within:text-violet-500`} />
                                     <input
-                                        type="password"
+                                        type={showPassword ? "text" : "password"}
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         placeholder="Enter Password"
-                                        className={`w-full pl-12 pr-4 py-4 border rounded-xl outline-none transition-all ${isAdmin
+                                        className={`w-full pl-12 pr-12 py-4 border rounded-xl outline-none transition-all ${isAdmin
                                             ? 'bg-slate-800/80 border-slate-700 focus:border-emerald-500 text-white placeholder-slate-500'
                                             : 'bg-white/80 border-white focus:border-violet-500 focus:ring-2 focus:ring-violet-200/50 shadow-sm'
                                             }`}
                                         required
                                     />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-violet-500 focus:outline-none"
+                                    >
+                                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                    </button>
                                 </div>
                             </div>
                         </div>
