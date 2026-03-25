@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, FileText, Vote as VoteIcon, AlertCircle, User } from 'lucide-react';
+import { LayoutDashboard, FileText, Vote as VoteIcon, AlertCircle, User, BarChart } from 'lucide-react';
 
 const BottomNav = () => {
     const location = useLocation();
@@ -21,6 +21,7 @@ const BottomNav = () => {
         { path: isAdmin ? '/admin/dashboard' : '/dashboard', label: 'Home', icon: LayoutDashboard },
         !isAdmin && { path: '/manifesto', label: 'Manifestos', icon: FileText },
         !isAdmin && { path: '/vote', label: 'Vote', icon: VoteIcon },
+        !isAdmin && { path: '/stats', label: 'Stats', icon: BarChart },
         { path: '/grievance', label: 'Grievance', icon: AlertCircle },
         !isAdmin && { path: '/profile', label: 'Profile', icon: User },
     ].filter(Boolean);

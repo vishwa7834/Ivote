@@ -19,6 +19,19 @@ const authenticateAdmin = (req, res, next) => {
         res.status(401).json({ message: 'Invalid token' });
     }
 };
+
+// GET /api/analytics/public-stats (Public stats for all users)
+router.get('/public-stats', async (req, res) => {
+    try {
+        const totalVoters = await User.countDocuments({ role: 'student' });
+        const votesCast = await User.countDocuments({ role: 'student', hasVoted: true });
+        res.json({ totalVoters, votedVoters: votesCast });
+    } catch (error) {
+        console.error('Public Stats Error:', error);
+        res.status(500).json({ message: 'Server error fetching public stats' });
+    }
+});
+
 // GET /api/analytics/dashboard
 router.get('/dashboard', authenticateAdmin, async (req, res) => {
     try {

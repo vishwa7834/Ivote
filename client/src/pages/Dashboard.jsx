@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Vote, FileText, CheckCircle2, Clock, ChevronRight, Star, ExternalLink } from 'lucide-react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
-import studentHero from '../assets/modern_voting_hero_v2.png';
+import studentHero from '../assets/modern_voting_hero_v3.png';
+import PageTransition from '../components/PageTransition';
 
 const Dashboard = () => {
     const [user, setUser] = useState(null);
@@ -13,12 +14,12 @@ const Dashboard = () => {
         if (storedUser) setUser(JSON.parse(storedUser));
     }, []);
 
-    if (!user) return <div className="min-h-screen flex items-center justify-center text-slate-400">Loading Your Dashboard...</div>;
+    if (!user) return <PageTransition className="min-h-screen flex items-center justify-center text-slate-400"><div className="w-12 h-12 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin" /></PageTransition>;
 
     const hasVoted = user.hasVoted;
 
     return (
-        <div className="space-y-12 pb-20">
+        <PageTransition className="space-y-12 pb-20 max-w-7xl mx-auto px-4 pt-10">
             {/* Hero Section */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -138,7 +139,7 @@ const Dashboard = () => {
                     </Link>
                 </motion.div>
             </div>
-        </div>
+        </PageTransition>
     );
 };
 

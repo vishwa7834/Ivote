@@ -7,8 +7,12 @@ import confetti from 'canvas-confetti';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { API_URL } from '../config';
 import FaceCapture from '../components/FaceCapture';
+import PageTransition from '../components/PageTransition';
+import { useToast } from '../contexts/ToastContext';
+import { CandidateSkeleton } from '../components/Skeleton';
 
 const Vote = () => {
+    const { showToast } = useToast();
     const [candidates, setCandidates] = useState([]);
     const [selectedCandidate, setSelectedCandidate] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -75,6 +79,8 @@ const Vote = () => {
                 origin: { y: 0.6 }
             });
 
+            showToast('Vote successfully cast!', 'success');
+
             setTimeout(() => {
                 navigate('/dashboard');
             }, 2000);
@@ -82,9 +88,9 @@ const Vote = () => {
         } catch (err) {
             const errorMsg = err.response?.data?.message || err.message;
             if (errorMsg === 'Network Error') {
-                alert('Connection failed. Please check your internet connection and try again.');
+                showToast('Connection failed. Please check internet connection.', 'error');
             } else {
-                alert('Voting failed: ' + errorMsg);
+                showToast('Voting failed: ' + errorMsg, 'error');
             }
             setShowFaceVerification(false);
         } finally {
@@ -93,30 +99,32 @@ const Vote = () => {
     };
 
     if (loading) return (
-        <div className="min-h-screen flex items-center justify-center">
-            <div className="w-12 h-12 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin" />
-        </div>
+        <PageTransition className="min-h-screen max-w-7xl mx-auto px-4 py-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-32">
+                {[1, 2, 3].map(i => <CandidateSkeleton key={i} />)}
+            </div>
+        </PageTransition>
     );
 
     if (hasVoted) return (
-        <div className="min-h-[80vh] flex flex-col items-center justify-center p-8 text-center space-y-6">
+        <PageTransition className="min-h-[80vh] flex flex-col items-center justify-center p-8 text-center space-y-6">
             <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center"
+                className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center shadow-lg shadow-green-200"
             >
                 <CheckCircle2 className="w-12 h-12 text-green-600" />
             </motion.div>
             <h2 className="text-3xl font-black text-slate-800">You have already voted!</h2>
             <p className="text-slate-500 max-w-md">Thank you for participating in the election. Your vote has been securely recorded.</p>
-            <button onClick={() => navigate('/dashboard')} className="text-violet-600 font-bold hover:underline">
+            <button onClick={() => navigate('/dashboard')} className="text-violet-600 font-bold hover:underline transition-all hover:scale-105 active:scale-95">
                 Return to Dashboard
             </button>
-        </div>
+        </PageTransition>
     );
 
     return (
-        <div className="relative min-h-screen">
+        <PageTransition className="relative min-h-screen">
             {/* Soft Ambient Background Elements */}
             <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
                 <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-violet-400/20 blur-[120px] rounded-full mix-blend-multiply"></div>
@@ -304,7 +312,7 @@ const Vote = () => {
                     )}
                 </AnimatePresence>
             </div>
-        </div>
+        </PageTransition>
     );
 };
 

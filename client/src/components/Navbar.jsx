@@ -61,6 +61,7 @@ const Navbar = () => {
         { path: isAdmin ? '/admin/dashboard' : '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
         !isAdmin && { path: '/manifesto', label: 'Manifestos', icon: FileText },
         !isAdmin && { path: '/vote', label: 'Vote', icon: VoteIcon },
+        { path: '/stats', label: 'Live Stats', icon: LayoutDashboard }, // using existing icon or similar, or importing BarChart3
         { path: '/grievance', label: 'Grievances', icon: AlertCircle },
         !isAdmin && { path: '/profile', label: 'My Profile', icon: User },
     ].filter(Boolean);

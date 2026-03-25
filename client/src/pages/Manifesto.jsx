@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import { FileText, Award, Quote } from 'lucide-react';
+import { Award, Quote } from 'lucide-react';
 import { API_URL } from '../config';
+import PageTransition from '../components/PageTransition';
+import { CandidateSkeleton } from '../components/Skeleton';
 
 const Manifesto = () => {
     const [candidates, setCandidates] = useState([]);
@@ -15,10 +17,16 @@ const Manifesto = () => {
             .finally(() => setLoading(false));
     }, []);
 
-    if (loading) return <div className="text-center mt-20 text-gray-400">Loading Manifestos...</div>;
+    if (loading) return (
+        <PageTransition className="max-w-7xl mx-auto px-4 py-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-20">
+                {[1, 2, 3].map(i => <CandidateSkeleton key={i} />)}
+            </div>
+        </PageTransition>
+    );
 
     return (
-        <div className="space-y-8">
+        <PageTransition className="max-w-7xl mx-auto px-4 py-12 space-y-8">
             <div className="text-center mb-12">
                 <h1 className="text-4xl font-black text-gray-900 mb-4">Candidate Manifestos</h1>
                 <p className="text-xl text-gray-500 max-w-2xl mx-auto">
@@ -77,11 +85,11 @@ const Manifesto = () => {
             </div>
 
             {candidates.length === 0 && (
-                <div className="text-center py-20">
-                    <p className="text-gray-400">No candidates have registered yet.</p>
+                <div className="text-center py-20 bg-white/50 backdrop-blur-md rounded-3xl border border-white">
+                    <p className="text-gray-500 font-medium">No candidates have registered yet.</p>
                 </div>
             )}
-        </div>
+        </PageTransition>
     );
 };
 
