@@ -16,9 +16,9 @@ const hardReset = async () => {
         const userResult = await User.deleteMany({});
         console.log(`Deleted ${userResult.deletedCount} users.`);
 
-        // Reset Candidate Votes
-        const candidateResult = await Candidate.updateMany({}, { $set: { votes: 0 } });
-        console.log(`Reset votes for ${candidateResult.modifiedCount} candidates.`);
+        // Delete all candidates
+        const candidateResult = await Candidate.deleteMany({});
+        console.log(`Deleted ${candidateResult.deletedCount} candidates.`);
 
         // Delete Grievances
         const grievanceResult = await Grievance.deleteMany({});
