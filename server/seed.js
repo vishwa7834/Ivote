@@ -12,16 +12,16 @@ const seedUsers = async () => {
 
         const salt = await bcrypt.genSalt(10);
         const defaultPassword = await bcrypt.hash('password123', salt);
-        const adminPassword = await bcrypt.hash('9486677834', salt);
+        const adminPassword = await bcrypt.hash('admin123', salt);
 
         const users = [
             {
-                name: 'Admin User',
+                name: 'System Admin',
                 phone: '9999999999',
-                rollNumber: 'vishwa7834@gmail.com', // Using email as the ID
+                rollNumber: 'admin', // Using 'admin' as the ID for easy login
                 role: 'admin',
                 password: adminPassword,
-                email: 'vishwa7834@gmail.com'
+                email: 'admin@ivote.com'
             },
             {
                 name: 'Vishwa',
